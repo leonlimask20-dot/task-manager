@@ -1,44 +1,34 @@
-# Nome do pipeline — aparece na aba "Actions" do GitHub
 name: CI — Task Manager
 
-# Define quando o pipeline é executado
 on:
   push:
-    branches: [main]        # a cada push na main
+    branches: [main]
   pull_request:
-    branches: [main]        # a cada pull request para a main
+    branches: [main]
 
 jobs:
 
-  # ── Job 1: testes do frontend ──────────────────────────────────────────────
   testes-frontend:
     name: Testes Frontend (Vitest)
-    runs-on: ubuntu-latest  # máquina virtual que o GitHub fornece gratuitamente
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. Baixa o código do repositório na máquina virtual
       - name: Baixar código
         uses: actions/checkout@v4
 
-      # 2. Configura a versão do Node.js
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
-      # 3. Instala as dependências do frontend
       - name: Instalar dependências
         working-directory: frontend
         run: npm install
 
-      # 4. Roda os testes
       - name: Executar testes
         working-directory: frontend
         run: npm test
 
-  # ── Job 2: validação do backend ────────────────────────────────────────────
   validacao-backend:
     name: Validação Backend (Node.js)
     runs-on: ubuntu-latest
@@ -51,14 +41,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
 
       - name: Instalar dependências
         working-directory: backend
         run: npm install
 
-      # Verifica se o servidor sobe sem erros de sintaxe
       - name: Verificar sintaxe do servidor
         working-directory: backend
         run: node --check server.js && node --check routes/tasks.js && echo "Sintaxe OK"
