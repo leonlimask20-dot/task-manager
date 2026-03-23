@@ -3,26 +3,32 @@ const cors = require('cors');
 const taskRoutes = require('./routes/tasks');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS restrito — em produção define a origem real do frontend
+// Em desenvolvimento aceita localhost:5173 (Vite)
+const origemPermitida = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+app.use(cors({
+  origin: origemPermitida,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
-
-// Prefixo /tasks para todas as rotas de tarefas
 app.use('/tasks', taskRoutes);
 
-// Rota raiz para confirmar que a API está no ar
 app.get('/', (req, res) => {
   res.json({
     message: 'Task Manager API',
     version: '1.0.0',
     endpoints: {
-      'GET    /tasks':          'Listar todas as tarefas',
+      'GET    /tasks':           'Listar todas as tarefas',
       'GET    /tasks?completed': 'Filtrar por status (true/false)',
-      'GET    /tasks/:id':      'Buscar tarefa por ID',
-      'POST   /tasks':          'Criar nova tarefa',
-      'PUT    /tasks/:id':      'Atualizar tarefa',
-      'DELETE /tasks/:id':      'Remover tarefa',
+      'GET    /tasks/:id':       'Buscar tarefa por ID',
+      'POST   /tasks':           'Criar nova tarefa',
+      'PUT    /tasks/:id':       'Atualizar tarefa',
+      'DELETE /tasks/:id':       'Remover tarefa',
     }
   });
 });
